@@ -43,9 +43,8 @@ struct wakelock_data {
 	int times;
 };
 typedef struct wakelock_data wakelock_data;
-extern node* new_wakelock(int duration, int times);
-extern void add_wakelock(int duration, int times, node* wakelock_node);
-extern void set_wl_id(int id, node* wakelock_node);
+extern node* new_wakelock(int duration);
+extern void add_wakelock(int duration, node* wakelock_node);
 
 struct net_data {
 	int recv;
