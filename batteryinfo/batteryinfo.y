@@ -15,6 +15,7 @@
 
 %union{ 
 	int intval;
+	char* strval;
 	struct node* nodeval;
 	struct net_data* netval;
 }
@@ -36,7 +37,7 @@
 %type <nodeval> service_list
 %type <nodeval> service
 
-%token <intval> ID
+%token <strval> ID
 %token <intval> INT
 
 /* tokens related to network */
@@ -157,7 +158,7 @@ apk_list: apk apk_list			{ $$ = $1; $$->next = $2; }
 		| /* epsilon */ 				{ $$ = NULL; }
 		;
 
-apk : APK ID':' alarm service_list			{ $$ = new_apk($4, $5); yprintf("apk ");}
+apk : APK ID':' alarm service_list			{ $$ = new_apk($2, $4, $5); yprintf("apk ");}
 		;
 
 alarm : INT WAKEUP_ALARMS		{ $$ = $1; yprintf("alarm ");}
@@ -190,12 +191,12 @@ void yyerror(char *s) {
 
 void yprintf(char *s) {
 	if(0)
-    fprintf(stdout, "%s\n", s);
+    fprintf(stdout, "yacc: %s\n", s);
 }
 
 void lprintf(char *s) {
 	if(0)
-    fprintf(stdout, "%s", s);
+    fprintf(stdout, "lex: %s\n", s);
 }
 
 int main(void) {

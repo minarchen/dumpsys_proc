@@ -14,31 +14,31 @@ struct node {
 typedef struct node node;
 
 struct service_data {
-	int id;
+	char* service_id;
 	int created;
 	int start;
 	int launch;
 };
 typedef struct service_data service_data;
-extern node* new_service(int id, int created, int start, int launch);
+extern node* new_service(char* service_id, int created, int start, int launch);
 
 struct apk_data {
+	char* apkid;
 	int wakeups;
 	node* service_list;
 };
 typedef struct apk_data apk_data;
-extern node* new_apk(int wakeups, node* service_list);
+extern node* new_apk(char* apkid, int wakeups, node* service_list);
 
 struct proc_data {
-	int id;
+	char* procid;
 	int usr;
 	int krn;
 };
 typedef struct proc_data proc_data;
-extern node* new_proc(int id, int usr, int krn);
+extern node* new_proc(char* procid, int usr, int krn);
 
 struct wakelock_data {
-	int id;
 	int duration;
 	int times;
 };
@@ -55,6 +55,7 @@ extern net_data* new_net_data(int recv, int sent);
 
 struct pid_data {
 	int pid;
+	char* name;
 	int net_recv;
 	int net_sent;
 	int user_interactions;

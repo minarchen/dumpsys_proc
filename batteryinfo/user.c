@@ -30,7 +30,7 @@ void visit_pid(pid_data* data) {
 		printf(" \t%d \t%d \t%d \t%d\n", wake_duration , wakeups, usr_time , krn_time );
 	}
 	first = FALSE;
-	printf("%d \t%d \t%d", data->pid, data->net_recv, data->net_sent);
+	printf("%s \t%d \t%d", data->name, data->net_recv, data->net_sent);
 	wakeups = 0;
 	wake_duration = 0;
 	service_starts = 0;

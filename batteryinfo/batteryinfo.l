@@ -1,6 +1,7 @@
 %{
     #include "y.tab.h"
     #include <stdlib.h>
+    #include <string.h>
     void yyerror(char *);
 		void lprintf(char *);
 %}
@@ -49,10 +50,10 @@ s								{lprintf("S"); return S;}
 m								{lprintf("M"); return M;}
 
 
-[A-Za-z_\-\/\*\{][A-Za-z0-9_\-\/:\.\*\$=@]*[A-Za-z0-9_\-\/\*/}]	{ lprintf("ID"); 
-																											lprintf(yytext); 
-																											yylval.intval = atoi(yytext); 
-																											return ID; }
+[A-Za-z_\-\/\*\{][A-Za-z0-9_\-\/:\.\*\$=@]*[A-Za-z0-9_\-\/\*/}]	{ lprintf("ID "); 
+															lprintf(yytext); 
+															yylval.strval = strdup(yytext); 
+															return ID; }
 
 [0-9]+			{ lprintf(yytext); yylval.intval = atoi(yytext); return INT; }
 
