@@ -1,4 +1,3 @@
-# dumpsys_to_json
-Convert Android dumpsys to JSON.
+# dumpsys_proc
 
-WIP
+Parse Android dumpsys. Enable side-by-side "diffing" of two dumps.
