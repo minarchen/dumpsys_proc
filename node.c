@@ -44,14 +44,26 @@ node* new_proc(int id, int usr, int krn) {
 	return n;
 }
 
-node* new_wakelock(int id, int duration, int times) {
+node* new_wakelock(int duration, int times) {
 	node* n = new_node(T_WAKE);
 	wakelock_data* data = (wakelock_data*) malloc (sizeof(wakelock_data));
-	data->id = id;
 	data->duration = duration;
 	data->times = times;
 	n->data = (void*) data;
 	return n;
+}
+
+void add_wakelock(int duration, int times, node* wakelock_node) {
+	check_type(wakelock_node, T_WAKE);
+	wakelock_data* data = (wakelock_data*) wakelock_node -> data;
+	data->duration += duration;
+	data->times += times;
+}
+
+void set_wl_id(int id, node* wakelock_node) {
+	check_type(wakelock_node, T_WAKE);
+	wakelock_data* data = (wakelock_data*) wakelock_node -> data;
+	data->id = id;
 }
 
 net_data* new_net_data(int recv, int sent) {

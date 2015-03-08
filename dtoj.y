@@ -4,6 +4,7 @@
   #include "user.h"
   int yylex(void);
   void yyerror(char *);
+  void lprintf(char *);
   void myprintf(char *);
 
 	#define MILLION 1000000
@@ -27,6 +28,7 @@
 %type <intval> activity
 %type <nodeval> wakelock_list
 %type <nodeval> wakelock
+%type <nodeval> wakelock_duration
 %type <nodeval> proc_list
 %type <nodeval> proc
 %type <nodeval> apk_list
@@ -50,17 +52,19 @@
 %token WAKELOCK
 %token TOTAL_WAKE
 %token TIMES
-%token PARTIAL
+%token WL_TYPE
 %token REALTIME
 
 /* tokens related to sensor */
 %token SENSOR
+%token NOT_USED
 
 /* tokens related to proc */
 %token PROC
 %token CPU
 %token USR
 %token KRN
+%token PROC_STARTS
 
 /* tokens related to apk */
 %token APK
@@ -90,11 +94,13 @@
 batteryinfo: pid_list	{ printf("Successfully parsed !\n"); finish($1);}
 				;
 
-pid_list: pid pid_list 	{ $$ = $1; $$->next = $2; }
+pid_list: pid pid_list 	{ if($1) {$$ = $1; $$->next = $2;} }
 			| /*epsilon*/			{ $$ = NULL; }
 			;
 
-pid: '#'INT':' net user wakelock_list proc_list apk_list	{ $$ = new_pid($2, $4, $5, $6, $7, $8 );}
+pid: '#'INT':' net user wakelock_list sensor_list proc_list apk_list	{ $$ = new_pid($2, $4, $5, $6, $8, $9 );
+																														myprintf("pid ");}
+		| NOTHING_EXEC	{ $$ = NULL; }
 	;
 
 net: NETWORK bytes RECEIVED bytes SENT	{ $$ = new_net_data($2, $4);
@@ -119,21 +125,41 @@ activity: activity',' INT ID		{ $$ = $1 + $3; myprintf("activity ");}
 				| INT ID								{ $$ = $1; myprintf("activity ");}
 				;
 
+sensor_list: sensor sensor_list					{ myprintf("sensor_list "); }
+					 | /* epsilon */							{ myprintf("sensor_list "); }
+					 ;
+
+sensor: SENSOR duration REALTIME '(' INT TIMES ')'				{ myprintf("sensor "); }
+				| SENSOR NOT_USED				{ myprintf("sensor "); }
+				;
+
 wakelock_list: wakelock wakelock_list								{ $$ = $1; $$->next = $2; }
-						| TOTAL_WAKE duration PARTIAL REALTIME	{ $$ = NULL; }
+						| TOTAL_WAKE total_wake_duration REALTIME	{ $$ = NULL; }
 						| /* epsilon */													{ $$ = NULL; }
 						;
 
-wakelock: WAKELOCK ID':' duration PARTIAL '('INT TIMES')' REALTIME { $$ = new_wakelock($2, $4, $7);
-																																		myprintf("wakelock ");}
+wakelock: WAKELOCK wakelock_name':' wakelock_duration REALTIME { $$ = $4; set_wl_id(0,$$);  myprintf("wakelock ");}
 		;
+
+wakelock_duration: duration WL_TYPE '('INT TIMES')' ',' wakelock_duration { $$ = $8; add_wakelock($1, $4, $$); myprintf("wakelock_duration"); }
+								| duration WL_TYPE '('INT TIMES')' { $$ = new_wakelock($1, $4);  myprintf("wakelock_duration");}
+								;
+
+wakelock_name: ID wakelock_name
+						| ID
+						;
+
+total_wake_duration: duration WL_TYPE ',' total_wake_duration 
+								| duration WL_TYPE 
+								;
+
 
 proc_list: proc proc_list		{ $$ = $1; $$->next = $2; }
 		| /* epsilon */					{ $$ = NULL; }
 		;
 
-proc: PROC ID':' CPU duration USR '+' duration KRN	{ $$ = new_proc($2, $5, $8); 
-																											myprintf("proc ");}
+proc: PROC ID':' CPU duration USR '+' duration KRN	{ $$ = new_proc($2, $5, $8); myprintf("proc ");}
+		| PROC ID':' CPU duration USR '+' duration KRN INT PROC_STARTS	{ $$ = new_proc($2, $5, $8); myprintf("proc ");}
 		;
 
 apk_list: apk apk_list			{ $$ = $1; $$->next = $2; }
@@ -176,7 +202,7 @@ void myprintf(char *s) {
     fprintf(stdout, "%s\n", s);
 }
 
-void outprintf(char *s) {
+void lprintf(char *s) {
 	if(1)
     fprintf(stdout, "%s", s);
 }

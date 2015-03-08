@@ -2,59 +2,61 @@
     #include "y.tab.h"
     #include <stdlib.h>
     void yyerror(char *);
-		void myprintf(char *);
+		void lprintf(char *);
 %}
-/*([0-9]+m[ ])?([0-9]+s[ ])?[0-9]+ms	{myprintf("DURATION"); return DURATION; }*/
+/*([0-9]+m[ ])?([0-9]+s[ ])?[0-9]+ms	{lprintf("DURATION"); return DURATION; }*/
 
 %%
 
-Network: 					{ myprintf("NETWORK"); return NETWORK; } 
-received,					{ myprintf("RECEIVED"); return RECEIVED; }
-sent							{ myprintf("SENT"); return SENT; }
+Network: 					{ lprintf("NETWORK"); return NETWORK; } 
+received,					{ lprintf("RECEIVED"); return RECEIVED; }
+sent							{ lprintf("SENT"); return SENT; }
 
-User[ ]activity: 	{ myprintf("USER"); return USER; }
+User[ ]activity: 	{ lprintf("USER"); return USER; }
 
-Wake[ ]lock 				{ myprintf("WAKELOCK"); return WAKELOCK; }
-TOTAL[ ]wake:			{ myprintf("TOTAL_WAKE"); return TOTAL_WAKE; }
-times							{ myprintf("TIMES"); return TIMES; }
-partial						{ myprintf("PARTIAL"); return PARTIAL; }
-realtime					{ myprintf("REALTIME"); return REALTIME; }
+Wake[ ]lock 				{ lprintf("WAKELOCK"); return WAKELOCK; }
+TOTAL[ ]wake:			{ lprintf("TOTAL_WAKE"); return TOTAL_WAKE; }
+times							{ lprintf("TIMES"); return TIMES; }
+partial|full			{ lprintf("WL_TYPE"); return WL_TYPE; }
+realtime					{ lprintf("REALTIME"); return REALTIME; }
 
-Sensor[ ][0-9]:|Vibrator:   	{ myprintf("SENSOR"); return SENSOR; } 
+Sensor[ ][0-9]:|Vibrator:   	{ lprintf("SENSOR"); return SENSOR; } 
+\(not[ ]used\)			{lprintf("NOT_USED"); return NOT_USED; }
 
-Proc						{	myprintf("PROC"); return PROC; }
-CPU:						{	myprintf("CPU"); return CPU; }
-usr							{	myprintf("USR"); return USR; }
-krn							{	myprintf("KRN"); return KRN; }
+Proc						{	lprintf("PROC"); return PROC; }
+CPU:						{	lprintf("CPU"); return CPU; }
+usr							{	lprintf("USR"); return USR; }
+krn							{	lprintf("KRN"); return KRN; }
+proc[ ]starts		{	lprintf("PROC_STARTS"); return PROC_STARTS; }
 
-Apk						{	myprintf("APK"); return APK; }
+Apk						{	lprintf("APK"); return APK; }
 
-wakeup[ ]alarms	{myprintf("WAKEUP_ALARMS"); return WAKEUP_ALARMS;}
+wakeup[ ]alarms	{lprintf("WAKEUP_ALARMS"); return WAKEUP_ALARMS;}
 
-Service				{myprintf("SERVICE"); return SERVICE;}
-Created[ ]for:	{myprintf("CREATED_FOR"); return CREATED_FOR;}
-uptime				{myprintf("UPTIME"); return UPTIME; }
-Starts:				{myprintf("START"); return START; }
-,[ ]+launches:	{myprintf("LAUNCHES"); return LAUNCHES; }
-\(nothing[ ]executed\) 	{myprintf("NOTHING_EXEC"); return NOTHING_EXEC; }
+Service				{lprintf("SERVICE"); return SERVICE;}
+Created[ ]for:	{lprintf("CREATED_FOR"); return CREATED_FOR;}
+uptime				{lprintf("UPTIME"); return UPTIME; }
+Starts:				{lprintf("START"); return START; }
+launches:	{lprintf("LAUNCHES"); return LAUNCHES; }
+\(nothing[ ]executed\) 	{lprintf("NOTHING_EXEC"); return NOTHING_EXEC; }
 
-MB							{myprintf("MB"); return MB;}
-KB							{myprintf("KB"); return KB;}
-B								{myprintf("B"); return B;}
+MB							{lprintf("MB"); return MB;}
+KB							{lprintf("KB"); return KB;}
+B								{lprintf("B"); return B;}
 
-ms							{myprintf("MS"); return MS;}
-s								{myprintf("S"); return S;}
-m								{myprintf("M"); return M;}
+ms							{lprintf("MS"); return MS;}
+s								{lprintf("S"); return S;}
+m								{lprintf("M"); return M;}
 
 
-[A-Za-z_\-\/][A-Za-z0-9_\-\/:]*[A-Za-z0-9_\-\/]	{ myprintf("ID"); 
-																											myprintf(yytext); 
+[A-Za-z_\-\/\*\{][A-Za-z0-9_\-\/:\.\*\$=@]*[A-Za-z0-9_\-\/\*/}]	{ lprintf("ID"); 
+																											lprintf(yytext); 
 																											yylval.intval = atoi(yytext); 
 																											return ID; }
 
-[0-9]+			{ myprintf(yytext); yylval.intval = atoi(yytext); return INT; }
+[0-9]+			{ lprintf(yytext); yylval.intval = atoi(yytext); return INT; }
 
-[+();,#:\.]    { myprintf(yytext); return *yytext; }
+[+();,#:\.]    { lprintf(yytext); return *yytext; }
 
 [\r\n]+						{	/* skip new line */ }
 
