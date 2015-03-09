@@ -86,6 +86,7 @@
 %token B
 
 /* tokens related to duration */
+%token H
 %token M
 %token S
 %token MS
@@ -176,7 +177,9 @@ service : SERVICE ID':' CREATED_FOR duration UPTIME START INT',' LAUNCHES INT	{
 																																							}
 				;
 
-duration : INT M INT S INT MS	{ $$ = $1 * 60000 + $3*1000 + $5;
+duration : INT H INT M INT S INT MS	{ $$ = $1 * 60*60*1000 + $3 * 60000 + $5*1000 + $7;
+																yprintf("duration ");}
+				 |	INT M INT S INT MS	{ $$ = $1 * 60000 + $3*1000 + $5;
 																yprintf("duration ");}
          | INT S INT MS				{ $$ = $1 * 1000 + $3;
 				 												yprintf("duration ");}

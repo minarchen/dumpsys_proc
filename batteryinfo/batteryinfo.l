@@ -48,6 +48,7 @@ B								{lprintf("B"); return B;}
 ms							{lprintf("MS"); return MS;}
 s								{lprintf("S"); return S;}
 m								{lprintf("M"); return M;}
+h								{lprintf("H"); return H;}
 
 
 [A-Za-z_\-\/\*\{][A-Za-z0-9_\-\/:\.\*\$=@]*[A-Za-z0-9_\-\/\*/}]	{ lprintf("ID "); 
